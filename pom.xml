@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.joaopratas.project</groupId>
+    <artifactId>project-webservice-rest</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <!-- tomacat 8 needs some extra config to work out of the box with springboot -->
+        <!--<tomcat.version>8.0.3</tomcat.version>-->
+        <log4j-api.version>2.8.2</log4j-api.version>
+        <commons-lang3.version>3.5</commons-lang3.version>
+        <maven-assembly-plugin.version>3.0.0</maven-assembly-plugin.version>
+        <activiti-engine.version>6.0.0</activiti-engine.version>
+        <activiti-spring-boot-starter-basic.version>6.0.0</activiti-spring-boot-starter-basic.version>
+        <h2.version>1.4.196</h2.version>
+        <commons-io.version>2.5</commons-io.version>
+        <imgscalr-lib.version>4.2</imgscalr-lib.version>
+
+        <start-class>com.joaopratas.scenario.Application</start-class>
+    </properties>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.2.RELEASE</version>
+    </parent>
+
+    <modules>
+        <module>image-resize</module>
+    </modules>
+
+    <packaging>pom</packaging>
+
+</project>

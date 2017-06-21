@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+    <process id="imageResizeFlow" name="Image Resize Flow" isExecutable="true">
+        <startEvent id="start" name="Start"></startEvent>
+        <serviceTask id="validateRequest" name="Validate Request" default="sid-7CBA194F-197F-42A9-92BE-75590A5995F4" activiti:class="com.joaopratas.scenario.activiti.services.ValidateRequest"></serviceTask>
+        <exclusiveGateway id="isValidRequest" name="Request is valid?" default="sid-6BAFA65D-CE83-4766-98E7-8BA3B34A5C5F"></exclusiveGateway>
+        <serviceTask id="checkOptimizedImage" name="Check if optimized image exists" default="sid-3027B4D2-AE38-47D6-8498-19EFC6F0D56E" activiti:class="com.joaopratas.scenario.activiti.services.CheckImage">
+            <extensionElements>
+                <activiti:field name="customDirectory">
+                    <activiti:string><![CDATA[thumbnail]]></activiti:string>
+                </activiti:field>
+                <activiti:field name="contextVar">
+                    <activiti:string><![CDATA[HAS_OPTIMIZED_IMAGE]]></activiti:string>
+                </activiti:field>
+            </extensionElements>
+        </serviceTask>
+        <exclusiveGateway id="hasOptimizedImage" name="Optimized image exists?" default="sid-5BBCCAD7-841C-426C-BFED-895CC05167D7"></exclusiveGateway>
+        <serviceTask id="checkOriginalImage" name="Check if original image exists" default="sid-11882ABE-36B8-419C-97AD-937BFA224ECE" activiti:class="com.joaopratas.scenario.activiti.services.CheckImage">
+            <extensionElements>
+                <activiti:field name="customDirectory">
+                    <activiti:string><![CDATA[original]]></activiti:string>
+                </activiti:field>
+                <activiti:field name="contextVar">
+                    <activiti:string><![CDATA[HAS_ORIGINAL_IMAGE]]></activiti:string>
+                </activiti:field>
+            </extensionElements>
+        </serviceTask>
+        <exclusiveGateway id="hasOriginalImage" name="Original image exisits?" default="sid-B6C41C4D-B367-4B6D-85FF-825582A2A4DB"></exclusiveGateway>
+        <serviceTask id="resizeImage" name="Resize Image" default="sid-7D165743-5A5E-4BBD-A390-71D29A28C532" activiti:class="com.joaopratas.scenario.activiti.services.ResizeImage"></serviceTask>
+        <serviceTask id="storeOptimizedImage" name="Store Optimized Image" default="sid-601365F1-824E-4BFF-9B8C-FAAD839DE891" activiti:class="com.joaopratas.scenario.activiti.services.StoreImage">
+            <extensionElements>
+                <activiti:field name="customDirectory">
+                    <activiti:string><![CDATA[thumbnail]]></activiti:string>
+                </activiti:field>
+            </extensionElements>
+        </serviceTask>
+        <serviceTask id="downloadImage" name="Download Image" default="sid-053276E2-E8A7-4E48-9592-F9024F467B5A" activiti:class="com.joaopratas.scenario.activiti.services.DownloadImage"></serviceTask>
+        <serviceTask id="storeOriginalImage" name="Store Original Image" default="sid-4AC4DF9E-1F60-4161-B783-419189F42CAE" activiti:class="com.joaopratas.scenario.activiti.services.StoreImage">
+            <extensionElements>
+                <activiti:field name="customDirectory">
+                    <activiti:string><![CDATA[original]]></activiti:string>
+                </activiti:field>
+            </extensionElements>
+        </serviceTask>
+        <sequenceFlow id="sid-2194C157-61B9-4CE9-A4D4-A295C7C194FA" sourceRef="start" targetRef="validateRequest"></sequenceFlow>
+        <sequenceFlow id="sid-7CBA194F-197F-42A9-92BE-75590A5995F4" sourceRef="validateRequest" targetRef="isValidRequest"></sequenceFlow>
+        <sequenceFlow id="sid-11882ABE-36B8-419C-97AD-937BFA224ECE" sourceRef="checkOriginalImage" targetRef="hasOriginalImage"></sequenceFlow>
+        <sequenceFlow id="sid-7D165743-5A5E-4BBD-A390-71D29A28C532" sourceRef="resizeImage" targetRef="storeOptimizedImage"></sequenceFlow>
+        <sequenceFlow id="sid-053276E2-E8A7-4E48-9592-F9024F467B5A" sourceRef="downloadImage" targetRef="storeOriginalImage"></sequenceFlow>
+        <sequenceFlow id="sid-4AC4DF9E-1F60-4161-B783-419189F42CAE" sourceRef="storeOriginalImage" targetRef="checkOriginalImage"></sequenceFlow>
+        <endEvent id="endError" name="End Error">
+            <errorEventDefinition></errorEventDefinition>
+        </endEvent>
+        <endEvent id="end" name="End (Return Optimized Image)">
+            <terminateEventDefinition></terminateEventDefinition>
+        </endEvent>
+        <sequenceFlow id="sid-B6C41C4D-B367-4B6D-85FF-825582A2A4DB" sourceRef="hasOriginalImage" targetRef="downloadImage"></sequenceFlow>
+        <sequenceFlow id="sid-601365F1-824E-4BFF-9B8C-FAAD839DE891" sourceRef="storeOptimizedImage" targetRef="checkOptimizedImage"></sequenceFlow>
+        <sequenceFlow id="sid-5307DDC4-DF66-41F9-8482-2657559D6B6F" sourceRef="hasOriginalImage" targetRef="resizeImage">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${HAS_ORIGINAL_IMAGE == true}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-3027B4D2-AE38-47D6-8498-19EFC6F0D56E" sourceRef="checkOptimizedImage" targetRef="hasOptimizedImage"></sequenceFlow>
+        <sequenceFlow id="sid-6BAFA65D-CE83-4766-98E7-8BA3B34A5C5F" sourceRef="isValidRequest" targetRef="endError"></sequenceFlow>
+        <sequenceFlow id="sid-A62A11DD-3E51-44CF-A537-E65713438AFA" sourceRef="isValidRequest" targetRef="checkOptimizedImage">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${IS_VALID_REQUEST == true}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="sid-5BBCCAD7-841C-426C-BFED-895CC05167D7" sourceRef="hasOptimizedImage" targetRef="end"></sequenceFlow>
+        <sequenceFlow id="sid-8E01418F-2E6D-497E-9B30-116F7F36B2BC" sourceRef="hasOptimizedImage" targetRef="checkOriginalImage">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${HAS_OPTIMIZED_IMAGE == false}]]></conditionExpression>
+        </sequenceFlow>
+    </process>
+    <bpmndi:BPMNDiagram id="BPMNDiagram_imageResizeFlow">
+        <bpmndi:BPMNPlane bpmnElement="imageResizeFlow" id="BPMNPlane_imageResizeFlow">
+            <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
+                <omgdc:Bounds height="30.0" width="30.0" x="45.0" y="104.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="validateRequest" id="BPMNShape_validateRequest">
+                <omgdc:Bounds height="80.0" width="100.0" x="135.0" y="79.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="isValidRequest" id="BPMNShape_isValidRequest">
+                <omgdc:Bounds height="40.0" width="40.0" x="300.0" y="99.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="checkOptimizedImage" id="BPMNShape_checkOptimizedImage">
+                <omgdc:Bounds height="80.0" width="100.0" x="450.0" y="79.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="hasOptimizedImage" id="BPMNShape_hasOptimizedImage">
+                <omgdc:Bounds height="40.0" width="40.0" x="615.0" y="99.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="checkOriginalImage" id="BPMNShape_checkOriginalImage">
+                <omgdc:Bounds height="80.0" width="100.0" x="585.0" y="195.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="hasOriginalImage" id="BPMNShape_hasOriginalImage">
+                <omgdc:Bounds height="40.0" width="40.0" x="773.5" y="215.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="resizeImage" id="BPMNShape_resizeImage">
+                <omgdc:Bounds height="80.0" width="100.0" x="975.0" y="195.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="storeOptimizedImage" id="BPMNShape_storeOptimizedImage">
+                <omgdc:Bounds height="80.0" width="100.0" x="975.0" y="345.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="downloadImage" id="BPMNShape_downloadImage">
+                <omgdc:Bounds height="80.0" width="100.0" x="743.5" y="345.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="storeOriginalImage" id="BPMNShape_storeOriginalImage">
+                <omgdc:Bounds height="80.0" width="100.0" x="743.5" y="480.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="endError" id="BPMNShape_endError">
+                <omgdc:Bounds height="28.0" width="28.0" x="306.0" y="195.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
+                <omgdc:Bounds height="28.0" width="28.0" x="870.0" y="105.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNEdge bpmnElement="sid-2194C157-61B9-4CE9-A4D4-A295C7C194FA" id="BPMNEdge_sid-2194C157-61B9-4CE9-A4D4-A295C7C194FA">
+                <omgdi:waypoint x="75.0" y="119.0"></omgdi:waypoint>
+                <omgdi:waypoint x="135.0" y="119.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-4AC4DF9E-1F60-4161-B783-419189F42CAE" id="BPMNEdge_sid-4AC4DF9E-1F60-4161-B783-419189F42CAE">
+                <omgdi:waypoint x="743.5" y="520.0"></omgdi:waypoint>
+                <omgdi:waypoint x="635.0" y="520.0"></omgdi:waypoint>
+                <omgdi:waypoint x="635.0" y="275.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-5BBCCAD7-841C-426C-BFED-895CC05167D7" id="BPMNEdge_sid-5BBCCAD7-841C-426C-BFED-895CC05167D7">
+                <omgdi:waypoint x="655.0" y="119.0"></omgdi:waypoint>
+                <omgdi:waypoint x="870.0" y="119.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-3027B4D2-AE38-47D6-8498-19EFC6F0D56E" id="BPMNEdge_sid-3027B4D2-AE38-47D6-8498-19EFC6F0D56E">
+                <omgdi:waypoint x="550.0" y="119.0"></omgdi:waypoint>
+                <omgdi:waypoint x="615.0" y="119.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-7D165743-5A5E-4BBD-A390-71D29A28C532" id="BPMNEdge_sid-7D165743-5A5E-4BBD-A390-71D29A28C532">
+                <omgdi:waypoint x="1025.0" y="275.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1025.0" y="345.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-7CBA194F-197F-42A9-92BE-75590A5995F4" id="BPMNEdge_sid-7CBA194F-197F-42A9-92BE-75590A5995F4">
+                <omgdi:waypoint x="235.0" y="119.0"></omgdi:waypoint>
+                <omgdi:waypoint x="300.0" y="119.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-5307DDC4-DF66-41F9-8482-2657559D6B6F" id="BPMNEdge_sid-5307DDC4-DF66-41F9-8482-2657559D6B6F">
+                <omgdi:waypoint x="813.5" y="235.0"></omgdi:waypoint>
+                <omgdi:waypoint x="975.0" y="235.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-053276E2-E8A7-4E48-9592-F9024F467B5A" id="BPMNEdge_sid-053276E2-E8A7-4E48-9592-F9024F467B5A">
+                <omgdi:waypoint x="793.5" y="425.0"></omgdi:waypoint>
+                <omgdi:waypoint x="793.5" y="480.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-6BAFA65D-CE83-4766-98E7-8BA3B34A5C5F" id="BPMNEdge_sid-6BAFA65D-CE83-4766-98E7-8BA3B34A5C5F">
+                <omgdi:waypoint x="320.0" y="139.0"></omgdi:waypoint>
+                <omgdi:waypoint x="320.0" y="195.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-A62A11DD-3E51-44CF-A537-E65713438AFA" id="BPMNEdge_sid-A62A11DD-3E51-44CF-A537-E65713438AFA">
+                <omgdi:waypoint x="340.0" y="119.0"></omgdi:waypoint>
+                <omgdi:waypoint x="450.0" y="119.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-B6C41C4D-B367-4B6D-85FF-825582A2A4DB" id="BPMNEdge_sid-B6C41C4D-B367-4B6D-85FF-825582A2A4DB">
+                <omgdi:waypoint x="793.5" y="255.0"></omgdi:waypoint>
+                <omgdi:waypoint x="793.5" y="345.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-601365F1-824E-4BFF-9B8C-FAAD839DE891" id="BPMNEdge_sid-601365F1-824E-4BFF-9B8C-FAAD839DE891">
+                <omgdi:waypoint x="1075.0" y="385.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1113.0" y="385.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1113.0" y="47.0"></omgdi:waypoint>
+                <omgdi:waypoint x="500.0" y="47.0"></omgdi:waypoint>
+                <omgdi:waypoint x="500.0" y="79.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-8E01418F-2E6D-497E-9B30-116F7F36B2BC" id="BPMNEdge_sid-8E01418F-2E6D-497E-9B30-116F7F36B2BC">
+                <omgdi:waypoint x="635.0" y="139.0"></omgdi:waypoint>
+                <omgdi:waypoint x="635.0" y="195.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="sid-11882ABE-36B8-419C-97AD-937BFA224ECE" id="BPMNEdge_sid-11882ABE-36B8-419C-97AD-937BFA224ECE">
+                <omgdi:waypoint x="685.0" y="235.0"></omgdi:waypoint>
+                <omgdi:waypoint x="773.5" y="235.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+        </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+</definitions>
